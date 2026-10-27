@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalp Eğrisi ve Renkli Yıldızlar</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="heartCanvas" width="800" height="800"></canvas>
+
+<script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Tuvalin merkez koordinatları
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Renk listesi
+    const colors = ["red", "blue", "lime", "yellow", "cyan", "magenta", "orange", "pink"];
+
+    let stepIndex = 0;
+    const totalSteps = 120;
+
+    // Videodaki 8 kollu yıldız çizim fonksiyonu
+    function drawStar(cx, cy, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 8; i++) {
+            const rad = (i * 45) * Math.PI / 180;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(rad) * 6, cy + Math.sin(rad) * 6);
+            ctx.stroke();
+        }
+    }
+
+    function animate() {
+        if (stepIndex >= totalSteps) return;
+
+        // Açı hesabı (0 - 2PI arası)
+        const angle = (stepIndex * (Math.PI * 2)) / totalSteps;
+
+        // Videodaki matematiksel kalp denklemi
+        const xRel = 16 * Math.pow(Math.sin(angle), 3) * 12;
+        // Y ekseni HTML Canvas'ta aşağıya doğru arttığı için tersi (-) alınır
+        const yRel = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle)) * 12;
+
+        const x = centerX + xRel;
+        const y = centerY + yRel;
+
+        // Rastgele renk seçimi
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        // Merkezden dış noktaya çizgi çekme
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Uç noktaya 8 kollu yıldız çizme
+        drawStar(x, y, color);
+
+        stepIndex++;
+        
+        // Bir sonraki kareyi çizdirme (animasyon akışı)
+        setTimeout(() => {
+            requestAnimationFrame(animate);
+        }, 30); // Çizim hızını ayarlamak için milisaniye
+    }
+
+    // Çizimi başlat
+    animate();
+</script>
+</body>
+</html>
